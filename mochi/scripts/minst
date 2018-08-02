@@ -1,0 +1,395 @@
+#!/bin/bash
+#
+#   Copyright 2018 Chrisdigity
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+#
+############
+# Formals ###
+v="1.0";
+a="Chrisdigity";
+name="MochiInstaller";
+fullname="$name - Version $v by $a";
+script="minst";
+#########
+# Vars ###
+d_data="data";
+d_archive="$d_data/archive";
+d_bak="$d_data/.bak";
+d_bin="../bin";
+d_src="../src";
+test=0;
+debug=0;
+check="";
+b_ma=" ";
+b_so=" ";
+b_co=" ";
+b_wa=" ";
+b_ready=0;
+installed=0;
+download=0;
+copt="";          # Compiler Options
+m_start=2;
+m_backup=2;
+m_uninstall=2;
+m_version=2;
+m_options=2;
+m_install=2;
+m_finish=2;
+finish="Installation Finished!";
+input="";
+i=0;
+maxi=0;
+declare -a files;
+##############
+# Functions ###
+dne () { printf "Doesn't Exist\n"; }
+success () { printf "Success\n"; }
+fail () { printf "Failed!!!\n"; [ -z $1 ] && return; exit 1; }
+err () {  
+  if [ -z $2 ]; then printf "\nExiting...\n\n"; 
+  else printf "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"; fi; exit $1; 
+}
+dcheck () { if [ $debug -eq 1 ]; then [ "$1" = "" ] && printf "DEBUG: $check\n" || printf "DEBUG: $1\n"; fi; }
+readf () { 
+  printf "$1";
+  read -d '' -t 0.25 -n 10000;
+  if [ -z $2 ]; then read input; else read -N 1 input; fi;
+}
+installcompiler () {
+  # Only compatible with Ubuntu/Debian/Fedora/Red Hat
+  command -v apt-get >/dev/null 2>&1 && sudo apt-get -y install build-essential || \
+  command -v dnf >/dev/null 2>&1 && sudo dnf -y groupinstall 'Development Tools' || \
+  command -v yum >/dev/null 2>&1 && sudo yum -y groupinstall 'Development Tools';
+}
+installtar () {
+  # Only compatible with Ubuntu/Debian/Fedora/Red Hat
+  command -v apt-get >/dev/null 2>&1 && sudo apt-get -y install tar || \
+  command -v dnf >/dev/null 2>&1 && sudo dnf -y groupinstall tar || \
+  command -v yum >/dev/null 2>&1 && sudo yum -y groupinstall tar;
+}
+installgit () {
+  # Only compatible with Ubuntu/Debian/Fedora/Red Hat
+  command -v apt-get >/dev/null 2>&1 && sudo apt-get -y install git-all || \
+  command -v dnf >/dev/null 2>&1 && sudo dnf -y groupinstall git-all || \
+  command -v yum >/dev/null 2>&1 && sudo yum -y groupinstall git-all;
+}
+header () { 
+  printf "\033c      \e[1m\e[4m$fullname\e[0m\n\n\e[2m";
+  [ $m_start -eq 0 ] && printf "\e[0m\e[1m"; [ $m_start -lt 2 ] && printf "  Start \e[0m\e[34m->\e[0m\e[2m ";
+  [ $m_backup -eq 0 ] && printf "\e[0m\e[1m"; [ $m_backup -lt 2 ] && printf "Backup \e[0m\e[34m->\e[0m\e[2m ";
+  [ $m_uninstall -eq 0 ] && printf "\e[0m\e[1m"; [ $m_uninstall -lt 2 ] && printf "Uninstall \e[0m\e[34m->\e[0m\e[2m ";
+  [ $m_version -eq 0 ] && printf "\e[0m\e[1m"; [ $m_version -lt 2 ] && printf "Version \e[0m\e[34m->\e[0m\e[2m ";
+  [ $m_options -eq 0 ] && printf "\e[0m\e[1m"; [ $m_options -lt 2 ] && printf "Options \e[0m\e[34m->\e[0m\e[2m ";
+  [ $m_install -eq 0 ] && printf "\e[0m\e[1m"; [ $m_install -lt 2 ] && printf "Install \e[0m\e[34m->\e[0m\e[2m ";
+  [ $m_finish -eq 0 ] && printf "\e[0m\e[1m"; [ $m_finish -lt 2 ] && printf "Finish\n\n";
+  printf "\e[0m";
+}
+#
+# Flag checks
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help|\?)
+      printf "\n$fullname\n";
+      printf "  An easy to use (hopefully) installer for the Mochimo Software.\n\n";
+
+      printf "Usage: ./$script [options]";
+      printf "    Summary:";
+      printf "        options -d    Debug verbosity\n";
+      printf "                -c    Version and changelog/info\n";
+      printf "                -t    Test Initialization\n";
+      exit 0
+      ;;
+    -c)
+      printf "\n$fullname\n\n";
+
+      printf "Changelog - last updated [2018/07/28]\n";
+      printf "  v1.0\n";
+      printf "  Initial implementation of script\n";
+      printf "   - pure installer\n";
+      printf "   - backup important files for update\n";
+      printf "   - selectable compiler options\n";
+      exit 0
+      ;;
+    -d)
+      debug=1;
+      ;;
+    -t)
+      test=1;
+      ;;
+  esac
+  shift
+done;
+dcheck "Flag checks complete...";
+#
+# Initialization
+header;
+printf "INSTALLER INITIALIZATION\n";
+printf "Checking compiler... ";
+if command -v cc >/dev/null 2>&1; then success;
+else printf "MISSING!\nThis installer requires a C Compiler ( gcc )...\n";
+  while :; do readf "Would you like the installer to install it for you (y/n)? ";
+    if [ "$input" = "y" ]; then printf "Installing Compiler... "; installcompiler;
+      if command -v cc >/dev/null 2>&1; then success; else fail 1; fi; break;
+    elif [ "$input" = "n" ]; then break; fi; done; fi;
+printf "Checking Tape Archiver... ";
+if command -v tar >/dev/null 2>&1; then success;
+else printf "MISSING!\nThis installer requires Tape Archiver ( tar )...\n";
+  while :; do readf "Would you like the installer to install it for you (y/n)? ";
+    if [ "$input" = "y" ]; then printf "Installing Tape Archiver... "; installtar;
+      if command -v tar >/dev/null 2>&1; then success; else fail 1; fi; break;
+    elif [ "$input" = "n" ]; then break; fi; done; fi;
+printf "Checking Git... ";
+if command -v git >/dev/null 2>&1; then success;
+else printf "MISSING!\nThis installer requires Git ( git )...\n";
+  while :; do readf "Would you like the installer to install it for you (y/n)? ";
+    if [ "$input" = "y" ]; then printf "Installing Git... "; installgit;
+      if command -v git >/dev/null 2>&1; then success; else fail 1; fi; break;
+    elif [ "$input" = "n" ]; then break; fi; done; fi;
+printf "Positioning Directory... ";               cd "${0%/*}" && success || fail 1;
+printf "Validating installer directory... ";      mkdir -p installer && success || fail 1;
+printf "Validating archive directory... ";        mkdir -p installer/archive && success || fail 1;
+printf "Validating hidden backup directory... ";  mkdir -p installer/.bak && success || fail 1;
+printf "Validating backup directory... ";         mkdir -p installer/bak && success || fail 1;
+printf "Validating previous version file... ";    touch installer/prev_v && success || fail 1;
+printf "Creating emergency backups where required ~\n";
+datetime=".$(date '+%Y-%m-%d.%H-%M-%S')";
+cp -f "$d_bin/maddr.dat"    "installer/.bak/maddr.dat$datetime"  > /dev/null 2>&1;
+cp -f "$d_bin/d/solved.dat" "installer/.bak/solved.dat$datetime" > /dev/null 2>&1;
+cp -f "$d_bin/coreip.lst"   "installer/.bak/coreip.lst$datetime" > /dev/null 2>&1;
+printf "Initialization Complete ~\n\n";
+[ $test -gt 0 ] && exit 0;
+#
+# Pre Installer Setup
+# start - backup - uninstall - version - install - finish
+m_start=0; m_license=1; m_version=1; m_options=1; m_install=1; m_finish=1;
+[ -f "$d_bin/mochimo" ] && m_backup=1 && m_uninstall=1;
+#
+# Installer
+while :; do
+  #
+  # Start - Welcome
+  if [ $m_start -eq 0 ]; then
+    header;
+    printf "  \e[1mWelcome to the MochiInstaller!\e[0m\n";
+    printf "    This installer will help you install the latest version of Mochimo Node.\n\n";
+
+    printf "    It allows you to add compiler options without modifying source files\n";
+    printf "    and can even help with backing up and restoring crucial files before\n";
+    printf "    updating to the latest Node. Helping you maintain your \"Blocks Solved\"\n";
+    printf "    value, custom coreip.lst and current maddr.dat file to avoid\n";
+    printf "    accidentally mining blocks for the devious Stackoverflo :P\n\n";
+
+    readf  "  Type \"q\" to Quit, or press \"Enter\" to Continue: ";
+      
+      if [ "$input" = "q" ]; then err 0 "\nExiting...\n\n";
+    elif [ "$input" = ""  ]; then [ $m_backup -eq 1 ] && m_backup=0 || m_version=0; m_start=1;
+    else continue; fi;
+  fi;
+  #
+  # Backup Files - maddr.dat, solved.dat, coreip.lst
+  if [ $m_backup -eq 0 ]; then 
+    while :; do
+      # File Checks
+      [ ! -r ../bin/maddr.dat ] && b_ma="-";
+      [ ! -r ../bin/d/solved.dat ] && b_so="-";
+      [ ! -r ../bin/coreip.lst ] && b_co="-";
+      [ ! -r ../bin/wallet.wal ] && b_wa="-";
+      #
+      header;
+      printf "  \e[1mAn existing installation has been detected.\e[0m\n";
+      printf "    The installer can backup critical files of your\n";
+      printf "    choosing and restore them after installation has completed.\n";
+      printf "    Please select the files below: (\e[34mX\e[0m = selected, \e[34m-\e[0m = unselectable)\n\n";
+      [ "$b_ma" = "-" ] && tcol="\e[0m\e[2m" || tcol="\e[0m";
+        printf "$tcol    1\e[1m\e[34m.$tcol [\e[34m$b_ma$tcol]  "; printf "Backup maddr.dat  - "
+          [ "$b_ma" = "-" ] && printf "Doesn't Exist or Cannot be read...\n" || printf "Mining Address ~ *Recommended)\n";
+      [ "$b_so" = "-" ] && tcol="\e[0m\e[2m" || tcol="\e[0m";
+        printf "$tcol    2\e[1m\e[34m.$tcol [\e[34m$b_so$tcol]  "; printf "Backup solved.dat - "
+          [ "$b_so" = "-" ] && printf "Doesn't Exist or Cannot be read...\n" || printf "Solved Blocks Counter ~ *Recommended)\n";
+      [ "$b_co" = "-" ] && tcol="\e[0m\e[2m" || tcol="\e[0m";
+        printf "$tcol    3\e[1m\e[34m.$tcol [\e[34m$b_co$tcol]  "; printf "Backup coreip.lst - "
+          [ "$b_co" = "-" ] && printf "Doesn't Exist or Cannot be read...\n" || printf "Core IP List)\n";
+      [ "$b_wa" = "-" ] && tcol="\e[0m\e[2m" || tcol="\e[0m";
+        printf "$tcol    4\e[1m\e[34m.$tcol [\e[34m$b_wa$tcol]  "; printf "Backup wallet.wal - "
+          [ "$b_wa" = "-" ] && printf "Doesn't Exist or Cannot be read...\n" || printf "Wallet ~ *NOT Recommended)\n\n";
+      printf "    b\e[1m\e[34m.\e[0m Back\n\n";
+
+      readf "  Type a selection or press \"Enter\" to confirm backups: ";
+      
+      if [[ $input =~ "1" ]] && [ "$b_ma" != "-" ]; then [ "$b_ma" = "X" ] && b_ma=" " || b_ma="X"; fi;
+      if [[ $input =~ "2" ]] && [ "$b_so" != "-" ]; then [ "$b_so" = "X" ] && b_so=" " || b_so="X"; fi;
+      if [[ $input =~ "3" ]] && [ "$b_co" != "-" ]; then [ "$b_co" = "X" ] && b_co=" " || b_co="X"; fi;
+      if [[ $input =~ "4" ]] && [ "$b_wa" != "-" ]; then [ "$b_wa" = "X" ] && b_wa=" " || b_wa="X"; fi;
+      if [[ $input =~ "b" ]]; then m_backup=1; m_start=0; break; fi;
+      if [ "$input" = "" ]; then b_ready=1; fi;
+      if [ $b_ready -gt 0 ]; then 
+        count=0;
+        header;
+        printf "  Backup selection:\n";
+        [ "$b_ma" = "X" ] && printf "     - maddr.dat\n"  && count=$[$count+1];
+        [ "$b_so" = "X" ] && printf "     - solved.dat\n" && count=$[$count+1];
+        [ "$b_co" = "X" ] && printf "     - coreip.lst\n" && count=$[$count+1];
+        [ "$b_wa" = "X" ] && printf "     - wallet.wal\n" && count=$[$count+1];
+                             printf "    $[$count] Files have been selected for backup.\n\n";
+
+        readf "  WARNING: Is the above backup selection correct(y/n)? [n]: ";
+        if [ "$input" = "y" ]; then break; fi;
+        b_ready=0;
+      fi;
+    done;
+    [[ "$input" =~ "b" ]] && continue; # Catch back input from above while loop
+    # perform backup
+    if [ "$b_ma" = "X" ] || [ "$b_so" = "X" ] || [ "$b_co" = "X" ] || [ "$b_go" = "X" ] || [ "$b_re" = "X" ]; then
+      printf "\nConfirm Backup directory... "; mkdir -p installer/bak; [ -d installer/bak ] && success || fail;
+      printf "Backup Files ~\n";
+      if [ "$b_ma" = "X" ]; then printf "  maddr.dat... ";
+        if [ -r ../bin/maddr.dat ]; then cp -f ../bin/maddr.dat installer/bak/; [ -r installer/bak/maddr.dat ] && success || fail;
+        else b_ma=" " && dne; fi; fi
+      if [ "$b_so" = "X" ]; then printf "  solved.dat... ";
+        if [ -r ../bin/d/solved.dat ]; then cp -f ../bin/d/solved.dat installer/bak/; [ -r installer/bak/solved.dat ] && success || fail;
+        else b_so=" " && dne; fi; fi
+      if [ "$b_co" = "X" ]; then printf "  coreip.lst... ";
+        if [ -r ../bin/coreip.lst ]; then cp -f ../bin/coreip.lst installer/bak/; [ -r installer/bak/coreip.lst ] && success || fail;
+        else b_co=" " && dne; fi; fi
+      if [ "$b_wa" = "X" ]; then printf "  wallet.wal... ";
+        if [ -r ../bin/wallet.wal ]; then cp -f ../bin/wallet.wal installer/bak/; [ -r installer/bak/wallet.wal ] && success || fail;
+        else b_go=" " && dne; fi; fi
+      printf "\nBackup Process Complete"; sleep 2;
+    fi
+    m_backup=1; m_uninstall=0;
+  fi;
+  #
+  # Uninstall - Clean/remove old mochimo node remnants
+  if [ $m_uninstall -eq 0 ]; then
+    header; printf "  \e[1mUninstall Mochimo Node\e[0m\n\n";
+    printf "    Let's go through some quick sanity checks...\n";
+    printf "     - The Mochimo Node's blockchain (bin/d/bc/) will be DELETED\n";
+    printf "     - The Mochimo Node's working directory (bin/d/) will be DELETED\n";
+    printf "     - The Mochimo Node's Genesis Block and Tfile will be DELETED\n";
+    printf "     - All Mochimo Node executables will be DELETED\n";
+    printf "     - The contents of the src folder will be DELETED\n\n";
+    readf "    ARE YOU SURE that you are ready to continue (y/n)? [n]:"
+
+    if [ "$input" = "y" ]; then
+      # Begin forced uninstallation
+      printf "\nThe Existing Installation will be removed in 5 seconds...\n";
+      sleep 5;
+      printf "\nUninstall Mochimo Node... ";
+      cd ../src;
+      ./makeunx "uninstall" >/dev/null 2>&1 && success || fail 1;
+      rm -rf ./*;
+      cd ../scripts;
+      printf "\nUninstall Process Complete\n\n"; sleep 2;
+      m_version=0;
+    else m_backup=0; fi; # Go Back!
+    m_uninstall=1;
+  fi;
+  #
+  # Version Selection - Choose a damn version, probably the latest...
+  if [ $m_version -eq 0 ]; then
+    # If possible, read in the previous version installed
+    [ -r installer/prev_v ] && prev_v=$(< installer/prev_v); 
+    # Download any new versions automagically
+    cd installer/archive;
+    if [ $download -gt 0 ]; then header; printf "Downloading latest mochimo package from github\\n";
+      git clone https://github.com/mochimodev/mochimo;
+      if [ $? -eq 0 ]; then cp -f mochimo/*.tgz .; rm -rf mochimo; printf "\n...Done!";
+      else printf "\n...Failed!"; fi;
+      sleep 1; download=0; fi;
+    # Select version to install
+    shopt -s nullglob dotglob; files=(*); cd ../..; maxi=0;
+    if [ ${#files[@]} -gt 0 ]; then header;
+      printf "  \e[1mMochimo Node Installation packages\e[0m\n";
+      i=0;    [ ${#files[@]} -gt 5 ] &&    i=$((${#files[@]}-5));
+      maxi=5; [ ${#files[@]} -lt 5 ] && maxi=${#files[@]};
+      while [ $i -lt $maxi ]; do previous=""; recommended="";
+        [ "${files[$i]}" = "$prev_v" ] && previous="  (previous)";
+        [ $i -eq $((maxi-1)) ] && recommended="  (recommended)";
+        printf "    $((i+1))\e[1m\e[34m.\e[0m Version ${files[$i]:18:3}      ${files[$((i++))]}$previous$recommended\n"; done;
+    else header; printf "  \e[1mNo Mochimo Node Installation packages found!\e[0m\n    Add packages to mochi/scripts/installer/archive/\n    or select select 'd' to download from GitHub\n"; fi;
+    [ $maxi -eq 0 ] && default="d" || default=$maxi;
+    printf "\n";
+    printf "    d\e[1m\e[34m.\e[0m Download any available updates from GitHub\n";
+    printf "    b\e[1m\e[34m.\e[0m Back to Main Menu\n\n";
+    readf "  Type a selection or press \"Enter\" to install recommended [$default]: ";
+    
+    i=${input:-$default};
+      if [ "$i" = "b" ]; then [ $m_uninstall -eq 1 ] && m_uninstall=0 || m_start=0; 
+    elif [ "$i" = "d" ]; then download=1; continue;
+    elif ! [[ "$i" =~ ^[0-9]+$ ]] || [ $i -lt 1 ] || [ $i -gt $maxi ]; then continue;
+    else m_options=0; fi;
+    m_version=1;
+  fi;
+  #
+  # Options - If you have to ask why, then you shouldn't be doing it
+  if [ $m_options -eq 0 ]; then
+    header; printf "  \e[1mInstallation Options\e[0m\n";
+    printf "    If you so desire, enter any custom \"options\" as you feel necessary.\n";
+    printf "    If you don't understand the option, just press enter.\n";
+    printf "    ... Ask Chrisdigity if you want other options included here.\n\n";
+    # Ask for custom recompile options
+    readf "    Compiler Options [$copt]: ";
+    default="$copt"; copt=${input:-$default};
+
+    readf "\n  b to Go Back; r to Reset Options; Press Enter to Begin Installation... ";
+
+      if [ "$input" = "b" ]; then m_version=0;
+    elif [ "$input" = "r" ]; then copt=""; continue;
+    elif [ "$input" != "" ]; then continue; # This can be considered a bug... r or any other will do the same
+    else m_install=0; fi;
+    m_options=1;
+  fi;
+  #
+  # Installation - Automatic, for the love of god DO NOT INTERRUPT
+  if [ $m_install -eq 0 ]; then
+    # ALERT!
+    header; printf "  \e[1mPlease Wait...\e[0m\n";
+    printf "    Interrupting the installation process may result in corrupted files\n\n"; sleep 2;
+    # Lock in fate
+    m_install=1; m_finish=0;
+    # Extract package
+    printf "Extracting ${files[$((--i))]}... ";
+    if tar -zxf "installer/archive/${files[$i]}" -C ../..; then 
+      success; else finish="$finish\n  Failed to extract ${files[$i]}"; fi;
+    # Compilation
+    cd ../src;
+    printf "\nCompiling Mochimo Node... "; [[ ! "$(./makeunx bin $copt)" =~ "No errors" ]] && fail && finish="$finish\n  Failed to Compile... Please check the ccerror.log in ../src\n" || success;
+    printf "\nInstalling Mochimo Node... "; [[ "$(./makeunx install)" =~ "cannot stat" ]] && fail && finish="$finish\n  Failed to Install...\n" || success;
+    cd ../scripts;
+    # Restore & Verify Files
+    if [ "$b_ma" = "X" ] || [ "$b_so" = "X" ] || [ "$b_co" = "X" ] || [ "$b_go" = "X" ] || [ "$b_re" = "X" ]; then
+      printf "\nRestore Backup Files ~\n";
+      if [ "$b_ma" = "X" ]; then cp -f installer/bak/maddr.dat ../bin/; printf "  maddr.dat... ";
+        [[ "$(diff ../bin/maddr.dat installer/bak/maddr.dat)" =~ "differ" ]] && fail && finish="$finish\n  Failed to restore maddr.dat...\n" || printf "Verified\n"; fi
+      if [ "$b_so" = "X" ]; then cp -f installer/bak/solved.dat ../bin/d/; printf "  solved.dat... ";
+        [[ "$(diff ../bin/d/solved.dat installer/bak/solved.dat)" =~ "differ" ]] && fail && finish="$finish\n  Failed to restore solved.dat...\n" || printf "Verified\n"; fi
+      if [ "$b_co" = "X" ]; then cp -f installer/bak/coreip.lst ../bin/; printf "  coreip.lst... ";
+        [[ "$(diff ../bin/coreip.lst installer/bak/coreip.lst)" =~ "differ" ]] && fail && finish="$finish\n  Failed to restore coreip.lst...\n" || printf "Verified\n"; fi
+      if [ "$b_wa" = "X" ]; then cp -f installer/bak/wallet.wal ../bin/; printf "  wallet.wal... ";
+        [[ "$(diff ../bin/wallet.wal installer/bak/wallet.wal)" =~ "differ" ]] && fail && finish="$finish\n  Failed to restore wallet.wal...\n" || printf "Verified\n"; fi
+    fi;
+    echo "${files[$i]}" > installer/prev_v;
+    printf "\nInstall Process Complete\n\n"; sleep 2;
+  fi;
+  #
+  # Installation - Automatic, for the love of god DO NOT INTERRUPT
+  [ $m_finish -eq 0 ] && break;
+done;
+
+header;
+printf "  \e[1m$finish\e[0m\n\n";
+printf "Script Finished...\n\n";
+
+exit 0
