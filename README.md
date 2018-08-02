@@ -51,4 +51,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE.md](LIC
 
 # Acknowledgments
 * Mochimo (https://mochimo.org/)
-* Mochimo Discord (https://discord.gg/rhdfwR9)
+* Mochimo Discord (https://discord.gg/G8YVFMt)
