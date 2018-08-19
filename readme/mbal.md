@@ -15,7 +15,7 @@ You will need:
 ### Install
 See Mochi Toolkit [README](README.md) for install instructions.
 
-### How to run
+### Usage
 Simply run the script from any location
 ```
 ./mbal
@@ -23,8 +23,9 @@ or
 $HOME/mochi/scripts/mbal
 ```
 
-### Options
- - `-a <location of address file>`          Set Address file to use
- - `-b <location of block explorer>`        Set Block Explorer to use
- - `-h <hex address, even # characters>`    User selected hex address
- - `-l <location of ledger file>`           Set Ledger file to use
+| Options | Option Description |
+| --- | --- |
+| -a, --address [file] | Set Address file to use |
+| -b, --bx [file] | Set Block Explorer to use |
+| -h, --hex [hex address] | User selected hex address |
+| -l, --ledger [file] | Set Ledger file to use |
