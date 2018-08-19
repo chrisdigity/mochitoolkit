@@ -1,30 +1,30 @@
 ## Mochi Balance - mbal
-Safe and secure way of getting the balance of a Mochimo address. It pulls the balance of the address from the ledger, using the cli Block Explorer, so you don't have to open the wallet to view your balance.
+Safe and secure way of obtaining the balance of a Mochimo address. It displays the balance of a Mochimo Address by using the CLI Block Explorer and a Ledger file. Especially useful if your wallet is giving you "Balance Check errors" or if you just like being ~~lazy~~ efficient.
 
 ### Features
- - By default, pull address from existing maddr.dat file and searches it.
- - Can search any hex address
+ - Obtains address from Mochimo Node's maddr.dat file.
+ - Can lookup balance of any hex address or Mochimo Address file
  - Can use custom executable files/locations
 
 ### Prerequisites
 You will need:
-```
- - A hex address (either specified or taken from an address file)
- - A Ledger (ledger.dat)
- - A Block Explorer (bx)
-```
+ - The CLI Block Explorer (bx)
+ - A Current Ledger file (ledger.dat)
+ - A Hex Address or Mochimo Address file (maddr.dat)
+
+### Install
+See Mochi Toolkit [README](README.md) for install instructions.
 
 ### How to run
-From the scripts directory,
+Simply run the script from any location
 ```
-cd ./mochi/scripts
 ./mbal
+or
+$HOME/mochi/scripts/mbal
 ```
 
-### Run with options
- - `./mbal -b <location of block explorer>`        Set Block Explorer to use
- - `./mbal -l <location of ledger file>`           Set Ledger file to use
- - `./mbal -a <location of address file>`          Set Address file to use
- - `./mbal -h <hex address, even # characters>`    User selected hex address
- - `./mbal -d`    Debug Mode - Helps identify problems...
-
+### Options
+ - `-a <location of address file>`          Set Address file to use
+ - `-b <location of block explorer>`        Set Block Explorer to use
+ - `-h <hex address, even # characters>`    User selected hex address
+ - `-l <location of ledger file>`           Set Ledger file to use
