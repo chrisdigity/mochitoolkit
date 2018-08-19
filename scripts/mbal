@@ -25,9 +25,9 @@ script="$(basename $0)";
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )";
 #########
 # Jars ###
-f_bx="$HOME/mochi/bin/bx";
-f_ledger="$HOME/mochi/bin/d/ledger.dat";
-f_addr="$HOME/mochi/bin/maddr.dat";
+f_bx="$DIR/../bin/bx";
+f_ledger="$DIR/../bin/d/ledger.dat";
+f_addr="$DIR/../bin/maddr.dat";
 check="";
 hex="";
 bal=0;
