@@ -16,7 +16,7 @@
 #
 ############
 # Formals ###
-v="1.1";
+v="1.1.1";
 a="Chrisdigity";
 name="Mochi Balance";
 desc="A Simple Script that shows the balance of your Mochimo address."
