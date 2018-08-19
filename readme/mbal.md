@@ -30,3 +30,5 @@ $HOME/mochi/scripts/mbal
 | -h, --hex [hex address] | User selected hex address |
 | -l, --ledger [file] | Set Ledger file to use |
 
+### Mentions
+ - Thanks to AcroTiger for one liner posted in the Mochimo Official [Discord](https://discord.gg/G8YVFMt) to pull hex address from address files.

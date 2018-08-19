@@ -27,3 +27,6 @@ $HOME/mochi/scripts/maddr
 | -a, --address [file] | Set Address file to use |
 | -f, --full | Display full Mochimo Address |
 | -i, --isitstack | Check Address file against default maddr.dat |
+
+### Mentions
+ - Thanks to AcroTiger for one liner posted in the Mochimo Official [Discord](https://discord.gg/G8YVFMt) to pull hex address from address files.
