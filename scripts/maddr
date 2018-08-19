@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+#   Copyright 2018 Chrisdigity
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+############
+# Formals ###
+v="1.0";
+a="Chrisdigity";
+name="Mochi Address";
+desc="A Simple Script to show the Mochimo address stored in a maddr.dat file"
+fullname="$name - Version $v by $a";
+script="$(basename $0)";
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )";
+#########
+# Jars ###
+f_addr="$HOME/mochi/bin/maddr.dat";
+addr="";
+full=0;
+isitstack=0;
+##########
+# Funks ###
+tlog () {
+  printf "[$(date '+%Y/%m/%d %H:%M:%S')] $script: $1" >> "$DIR/log";
+  if [ $(cat log | wc -l) -ge 5000 ]; then mv log log.bak; fi;
+}
+err ()  {
+  printf "error -> $1\nExiting...\n";
+  tlog "error -> $1\n";
+  exit 1;
+}
+########
+# Fly ###
+
+while [ $# -gt 0 ]; do
+
+  case "$1" in
+
+    -a|--address) # Set alternate Mochimo address file
+      shift;
+      [ $# -gt 0 ] && f_addr=$1 || err "No Address File Specified!\n";
+      [ "${f_addr:0:1}" = "-" ] && err "Address File Cannot begin with '-'\n";
+      [ ! -f $f_addr ] && err "No such address file: $f_addr\n";
+      ;;
+
+    -f|--full) # Remember, you asked for this...
+      full=1;
+      ;;
+
+    -i|--isitstack) # I understand, it is important...
+      isitstack=1;
+      ;;
+
+    *) # Usage
+      printf "\n$fullname\n";
+      printf "  $desc\n\n";
+
+      printf "Requirements: maddr.dat file, default -> $f_addr\n\n";
+
+      printf "Usage: ./$script [options]          $name Script\n";
+      printf "    Options:\n";
+      printf "        (no option)               Show short address\n";
+      printf "        -a, --address [file]      Set address file\n";
+      printf "        -f, --full                Show FULL address, in all it's glory\n";
+      printf "        -i, --isitstack           Check if address is the default maddr.dat file\n";
+      exit 0
+      ;;
+
+  esac;
+  shift;
+
+done;
+
+# Sanity Checks
+[ -r $f_addr ] || err "$f_addr - Does Not Exist or Cannot Read...";
+[ $(du -b "$f_addr" | cut -f1) -eq 2208 ] || err "Not a public address file: $f_addr";
+
+# Obtatin thy hex address
+addr="$(xxd $f_addr | cut -d ' ' -f 2-9 | sed 's/ //g' | sed ':a;N;$!ba;s/\n//g')";
+
+# Check if it's Stacks Mochimo Address
+if [ $isitstack -eq 1 ]; then default="dedcd9022c6e476683acb8ae30cb35cdbac0c6f8f05ed3781f1e132106a32af4c424d68d93da4470c4422a5b2966451954995d18d13d85a8d7a4f0c22e2fbc1a303686a3b96ef8f7efa6c7533d6d3f2e0ac00637fdc7bc11c0a3498a5ed4913d1320422e5bf745c297b67791787e1844d108d7fbc85fd80a9a9d1533bf09e483"
+  addr="${addr:0:256}"
+  printf "Is it Stack's?\n";
+  [ "$default" = "$addr" ] && printf "Yes... (╯°□°)╯︵┻━┻ \n" || printf "No... ＼(＾O＾)／\n";
+  exit 0;
+fi;
+
+# Reduce address to a reasonable size
+[ $full -eq 0 ] && addr="${addr:0:64}";
+
+# Display Mochimo address
+echo $addr;
+
+exit 0;
