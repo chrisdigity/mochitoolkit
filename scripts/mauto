@@ -1,0 +1,199 @@
+#!/bin/bash
+#
+#   Copyright 2018 Chrisdigity
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+############
+# Formals ###
+v="1.0";
+a="Chrisdigity";
+name="Mochi Autostart";
+desc="A Simple Autostart/Startup script for a Mochimo Node."
+fullname="$name - Version $v by $a";
+script="$(basename $0)";
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )";
+#########
+# Jars ###
+mochi="$DIR/../bin/gomochi";
+login="$DIR/.$script";
+mauto="$DIR/$script";
+bashrc="$HOME/.bashrc";
+profile="/etc/profile";
+flag="$1";
+check=0;
+c_prof=0;
+c_bash=0;
+c_tmux=0;
+c_tmux2=0;
+c_apt=0;
+c_dnf=0;
+c_yum=0;
+##########
+# Funks ###
+tlog () {
+  printf "[$(date '+%Y/%m/%d %H:%M:%S')] $script: $1" >> "$DIR/log";
+  if [ $(cat log | wc -l) -ge 5000 ]; then mv log log.bak; fi;
+}
+alert ()  {
+  printf "$1\n";
+  tlog "$1\n";
+}
+err ()  {
+  printf "error -> $1\nExiting...\n";
+  tlog "error -> $1\n";
+  exit 1;
+}
+prechecks () {
+  [ "$#" == "0" ] && prechecks "prof" "bash" "tmux" "apt" "dnf" "yum";
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      prof)  c_prof="$(grep $script $profile)";          c_prof=$?;  ;;
+      bash)  c_bash="$(grep $script $bashrc)";           c_bash=$?;  ;;
+      tmux)  c_tmux="$(command -v tmux)";                c_tmux=$?;  ;;
+      tmux2) c_tmux2="$(tmux lsc -t mochimo)";           c_tmux2=$?; ;;
+      apt)   c_apt="$(command -v apt-get)";              c_apt=$?;   ;;
+      dnf)   c_dnf="$(command -v dnf)";                  c_dnf=$?;   ;;
+      yum)   c_yum="$(command -v yum)";                  c_yum=$?;   ;;
+    esac;
+    shift;
+  done;
+}
+########
+# Fly ###
+
+while :; do
+
+  # Display usage if option not set
+  [ $# -ne 1 ] && flag="?";
+
+  case "$flag" in
+
+    -i|--install)
+      # Ensure no surprises...
+      prechecks;
+      [ $c_prof -eq 0 ] && [ $c_bash -eq 0 ] && err "Installation already exists";
+      [ $c_prof -ne $c_bash ] && \
+          err "Existing Malformed Installation Detected\n\tTry --uninstall first" || \
+          printf "Pre-installation checks OK\n\n";
+
+      printf "Your password may be required to complete installation ~\n\n";
+
+      # Auto package install, Only compatible with Ubuntu/Debian/Fedora/Red Hat... I hope
+      if [ $c_tmux -ne 0 ]; then
+        ( [ $c_apt -eq 0 ] && sudo apt-get -y install tmux ) || \
+            ( [ $c_dnf -eq 0 ] && sudo dnf -y install tmux ) || \
+            ( [ $c_yum -eq 0 ] && sudo yum -y install tmux ) || \
+            err "tmux installation failed. Please install tmux manually";
+      fi;
+
+      # Write to /etc/profile - requires root
+      sudo sh -c "echo \"$mauto -r >/dev/null 2>&1\" >> $profile" && \
+          alert "Added $mauto to $profile" || \
+          err "Failed to write to $profile";
+
+      # Write to $HOME/.bashrc
+      echo "$mauto -o" >> $HOME/.bashrc && \
+          alert "Added $mauto to $bashrc" || \
+          err "Failed to write to $bashrc";
+
+      printf "\nMochi Startup Installation Complete!\n\n";
+      break;
+      ;;
+
+    -u|--uninstall)
+      # Ensure no surprises...
+      prechecks "prof" "bash";
+      [ $c_prof -eq 1 ] && [ $c_bash -eq 1 ] && err "No installation found";
+
+      printf "Your password may be required to complete uninstallation ~\n\n";
+
+      # Remove line from /etc/profile - requires root
+      if [ $c_prof -eq 0 ]; then
+          sudo sed -i".bak" "/$script/d" "$profile" && \
+          alert "Cleaned $script from $profile" || \
+          err "Failed to clean $profile";
+      fi;
+
+      # Remove line from $HOME/.bashrc
+      if [ $c_bash -eq 0 ]; then
+        sed -i".bak" "/$script/d" "$bashrc" && \
+            alert "Cleaned $script from $bashrc" || \
+            err "Failed to clean $bashrc";
+      fi;
+
+      printf "\nMochi Startup Uninstallation Complete!\n\n";
+      break;
+      ;;
+
+    -r|--run)
+      # Ensure no surprises...
+      prechecks "tmux" "tmux2";
+      [ $c_tmux -eq 0 ] || err "tmux Failed";
+      [ $c_tmux2 -ne 0 ] || err "tmux session 'mochimo' already exists";
+      test -f $mochi  || err "$mochi not found";
+      test -x $mochi  || err "$mochi not executable";
+
+      # Create new tmux session, and execute gomochi d
+      tmux new -d -n MochimoNode -s mochimo \
+          "sleep 5; cd $HOME/mochi/bin; $mochi d; read" && \
+          tlog "tmux session 'mochimo' started succesfully\n" || \
+          err "tmux session 'mochimo' failed to start";
+
+      # Setup ONE-TIME tmux attach flag
+      touch "$login" || err "Failed to touch '$login'";
+      break;
+      ;;
+
+    -a|--attach)
+      # Ensure no surprises...
+      prechecks "tmux" "tmux2";
+      [ $c_tmux -eq 0 ] || err "tmux Failed";
+      [ $c_tmux2 -eq 0 ] || err "tmux session 'mochimo' does not exist";
+
+      # Show Mochimo Node
+      tmux attach -t mochimo || err "tmux session 'mochimo' failed to attach";
+      break;
+      ;;
+
+    -o|--once)
+      # Check ONE-TIME tmux attach flag exists, and acknownledge (via removal)
+      test -f "$login" || break;
+      rm -f "$login" || err "Could not delete $login";
+      
+      # Loop to --attach
+      flag="--attach";
+      continue;
+      ;;
+
+    *) # Usage
+      printf "\n$fullname\n";
+      printf "  $desc\n\n";
+
+      printf "Requirements: tmux (will install if not already)\n\n";
+
+      printf "Usage:  ./$script [option]    $name Script\n";
+      printf "    Options:\n";
+      printf "        -a, --attach        Attach to running Mochimo Node\n";
+      printf "        -i, --install       Install Mochi Autostart Script\n";
+      printf "        -o, --once          Show Mochimo Node ONCE, after --run\n";
+      printf "        -r, --run           Run Mochi Autostart Script\n";
+      printf "        -u, --uninstall     Uninstall Mochi Autostart Script\n\n";
+      break;
+      ;;
+
+  esac;
+
+done;
+
+exit 0;
