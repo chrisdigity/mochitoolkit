@@ -1,5 +1,5 @@
 ## Mochi Autostart - mauto
-Ever wondered what address is really in your maddr.dat file? Well, wonder no more...
+Automagically run your Mochimo Node in the background from System Startup and retrieve it at any time.
 
 ### Features
  - Starts Mochimo Node with tmux on system startup
@@ -16,7 +16,7 @@ You will need:
 See Mochi Toolkit [README](README.md) for inital install procedure. Then run: `./mauto --install` to setup autostart features for you Mochimo Node.
 
 ### Usage
-Simply install the Autostart Script as above and restart your system. The first terminal window you open after a restart should allow you to view the Mochimo Node. After closing the window, you may retrieve the node again by doing `./mauto --attach`
+Simply install the Autostart Script as above and restart your system. The first terminal window you open after a restart will attach to the Mochimo Node. To detach from the Mochimo Node, do `Ctrl^b + d` (Hold Ctrl while pressing 'b', let go of Ctrl, press 'd'). After detaching the node (or closing the terminal window) you may retrieve the node again by doing `./mauto --attach`.
 
 | Options | Option Description |
 | --- | --- |
