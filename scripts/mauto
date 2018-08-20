@@ -16,7 +16,7 @@
 #
 ############
 # Formals ###
-v="1.0";
+v="1.1";
 a="Chrisdigity";
 name="Mochi Autostart";
 desc="A Simple Autostart/Startup script for a Mochimo Node."
@@ -146,7 +146,12 @@ while :; do
 
       # Create new tmux session, and execute gomochi d
       tmux new -d -n MochimoNode -s mochimo \
-          "sleep 5; cd $HOME/mochi/bin; $mochi d; read" && \
+          "printf \"Waiting on the network... \";\
+           for i in {1..20}; do sleep 3;\
+             if ping -c1 google.com >/dev/null 2>&1; then printf \"Connected\n\";\
+               printf \"Move to $(dirname $mochi)\n\"; cd $(dirname $mochi);\
+               $mochi d; break;\
+             fi; done; printf \"Timeout!\n\"; read" && \
           tlog "tmux session 'mochimo' started succesfully\n" || \
           err "tmux session 'mochimo' failed to start";
 
