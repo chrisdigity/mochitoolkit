@@ -76,9 +76,6 @@ prechecks () {
 
 while :; do
 
-  # Display usage if option not set
-  [ $# -ne 1 ] && flag="?";
-
   case "$flag" in
 
     -i|--install)
@@ -99,15 +96,13 @@ while :; do
             err "tmux installation failed. Please install tmux manually";
       fi;
 
+      # Determine whether to install custom script or not
+      run="-r"; [ "$2" = "custom" ] && run="-rc";
+
       # Write to /etc/profile - requires root
-      sudo sh -c "echo \"$mauto -r >/dev/null 2>&1\" >> $profile" && \
+      sudo sh -c "echo \"$mauto $run >/dev/null 2>&1\" >> $profile" && \
           alert "Added $mauto to $profile" || \
           err "Failed to write to $profile";
-
-      # Write to $HOME/.bashrc
-      echo "$mauto -o" >> $HOME/.bashrc && \
-          alert "Added $mauto to $bashrc" || \
-          err "Failed to write to $bashrc";
 
       printf "\nMochi Startup Installation Complete!\n\n";
       break;
@@ -164,8 +159,7 @@ while :; do
       # Run custom startup script.
       #  - To change custom startup script
       #    edit the "runc" variable in mauto
-      $runc && tlog "Custom startup script succesful!\n" || \
-          err "Custom startup script failed!";
+      $runc && tlog "Custom startup script succesful!\n" || err "Custom startup script failed!";
 
       break;
       ;;
@@ -217,11 +211,11 @@ while :; do
       printf "Usage:  ./$script [option]    $name Script\n";
       printf "    Options:\n";
       printf "        -a, --attach        Attach to running Mochimo Node\n";
-      printf "        -c, --clog          Show changelog and version info\n";
+      printf "        -c, --changelog     Show changelog and version info\n";
       printf "        -i, --install       Install Mochi Autostart Script\n";
       printf "        -o, --once          Show Mochimo Node ONCE, after --run\n";
       printf "        -r, --run           Run Mochi Autostart Script\n";
-      printf "        -rc,--runc           Run Custom Mochi Autostart Script\n";
+      printf "        -rc,--runc          Run Custom Mochi Autostart Script\n";
       printf "        -u, --uninstall     Uninstall Mochi Autostart Script\n\n";
       break;
       ;;
