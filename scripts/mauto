@@ -16,18 +16,20 @@
 #
 ############
 # Formals ###
-v="1.1";
+v="1.2";
 a="Chrisdigity";
 name="Mochi Autostart";
-desc="A Simple Autostart/Startup script for a Mochimo Node."
+desc="A Simple Autostart/Startup script for a Mochimo Node.";
 fullname="$name - Version $v by $a";
 script="$(basename $0)";
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )";
 #########
 # Jars ###
 mochi="$DIR/../bin/gomochi";
+dmochi=$(dirname $mochi);
 login="$DIR/.$script";
 mauto="$DIR/$script";
+runc="$DIR/runc";
 bashrc="$HOME/.bashrc";
 profile="/etc/profile";
 flag="$1";
@@ -141,22 +143,30 @@ while :; do
       prechecks "tmux" "tmux2";
       [ $c_tmux -eq 0 ] || err "tmux Failed";
       [ $c_tmux2 -ne 0 ] || err "tmux session 'mochimo' already exists";
-      test -f $mochi  || err "$mochi not found";
-      test -x $mochi  || err "$mochi not executable";
+      [ -f $mochi ] || err "$mochi not found";
+      [ -x $mochi ] || err "$mochi not executable";
 
       # Create new tmux session, and execute gomochi d
-      tmux new -d -n MochimoNode -s mochimo \
+      tmux new -s mochimo -n MochimoNode -c $dmochi -d \
           "printf \"Waiting on the network... \";\
            for i in {1..20}; do sleep 3;\
              if ping -c1 google.com >/dev/null 2>&1; then printf \"Connected\n\";\
-               printf \"Move to $(dirname $mochi)\n\"; cd $(dirname $mochi);\
-               $mochi d; break;\
-             fi; done; printf \"Timeout!\n\"; read" && \
+               $mochi d; break; fi; done; printf \"Timeout!\n\"; read" && \
           tlog "tmux session 'mochimo' started succesfully\n" || \
           err "tmux session 'mochimo' failed to start";
 
       # Setup ONE-TIME tmux attach flag
       touch "$login" || err "Failed to touch '$login'";
+      break;
+      ;;
+
+    -rc|--runc)
+      # Run custom startup script.
+      #  - To change custom startup script
+      #    edit the "runc" variable in mauto
+      $runc && tlog "Custom startup script succesful!\n" || \
+          err "Custom startup script failed!";
+
       break;
       ;;
 
@@ -173,12 +183,29 @@ while :; do
 
     -o|--once)
       # Check ONE-TIME tmux attach flag exists, and acknownledge (via removal)
-      test -f "$login" || break;
-      rm -f "$login" || err "Could not delete $login";
+      [ -f "$login" ] || break;
+      rm -f "$login"  || err "Could not delete $login";
       
       # Loop to --attach
       flag="--attach";
       continue;
+      ;;
+
+    -c|--clog)
+      printf "\n$fullname\n\n";
+
+      printf "Changelog - last updated [2018/08/21]\n\n";
+
+      printf "  v1.2.0 - Implemented custom startup script option\n";
+      printf "   Added --runc to allow a custom startup script\n";
+      printf "   Added --clog, Changelog and version info\n\n";
+      printf "   Minor code improvements\n\n";
+
+      printf "  v1.1.0 - Fixed Block 0 event\n";
+      printf "   Added a network status check before running node\n\n";
+
+      printf "  v1.0.0 - Initial implementation of script\n\n";
+      break;
       ;;
 
     *) # Usage
@@ -190,9 +217,11 @@ while :; do
       printf "Usage:  ./$script [option]    $name Script\n";
       printf "    Options:\n";
       printf "        -a, --attach        Attach to running Mochimo Node\n";
+      printf "        -c, --clog          Show changelog and version info\n";
       printf "        -i, --install       Install Mochi Autostart Script\n";
       printf "        -o, --once          Show Mochimo Node ONCE, after --run\n";
       printf "        -r, --run           Run Mochi Autostart Script\n";
+      printf "        -rc,--runc           Run Custom Mochi Autostart Script\n";
       printf "        -u, --uninstall     Uninstall Mochi Autostart Script\n\n";
       break;
       ;;
