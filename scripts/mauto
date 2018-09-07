@@ -16,7 +16,7 @@
 #
 ############
 # Formals ###
-v="1.2";
+v="1.2.1";
 a="Chrisdigity";
 name="Mochi Autostart";
 desc="A Simple Autostart/Startup script for a Mochimo Node.";
@@ -103,6 +103,11 @@ while :; do
       sudo sh -c "echo \"$mauto $run >/dev/null 2>&1\" >> $profile" && \
           alert "Added $mauto to $profile" || \
           err "Failed to write to $profile";
+
+      # Write to $HOME/.bashrc
+      sudo sh -c "echo \"$mauto -o\" >> $bashrc" && \
+          alert "Added $mauto to $bashrc" || \
+          err "Failed to write to $bashrc";
 
       printf "\nMochi Startup Installation Complete!\n\n";
       break;
