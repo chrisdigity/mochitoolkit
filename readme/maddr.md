@@ -12,7 +12,7 @@ You will need:
  - A Mochimo Address file (maddr.dat)
 
 ### Install
-See Mochi Toolkit [README](README.md) for install instructions.
+See Mochi Toolkit [README](../README.md) for install instructions.
 
 ### Usage
 Simply run the script from any location

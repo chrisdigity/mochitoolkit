@@ -14,7 +14,7 @@ You will need:
  - a Mochimo Node installed in your home directory
 
 ### Download
-See Mochi Toolkit [README](README.md) for inital download procedure. 
+See Mochi Toolkit [README](../README.md) for inital download procedure.
 
 ### Install
 * Copy Mochi Autostart script to your Mochimo Node's scripts directory `$HOME/mochi/scripts`
