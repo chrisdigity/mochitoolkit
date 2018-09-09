@@ -57,12 +57,12 @@ declare -a files;
 dne () { printf "Doesn't Exist\n"; }
 success () { printf "Success\n"; }
 fail () { printf "Failed!!!\n"; [ -z $1 ] && return; exit 1; }
-err () {  
-  if [ -z $2 ]; then printf "\nExiting...\n\n"; 
-  else printf "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"; fi; exit $1; 
+err () {
+  if [ -z $2 ]; then printf "\nExiting...\n\n";
+  else printf "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"; fi; exit $1;
 }
 dcheck () { if [ $debug -eq 1 ]; then [ "$1" = "" ] && printf "DEBUG: $check\n" || printf "DEBUG: $1\n"; fi; }
-readf () { 
+readf () {
   printf "$1";
   read -d '' -t 0.25 -n 10000;
   if [ -z $2 ]; then read input; else read -N 1 input; fi;
@@ -85,7 +85,7 @@ installgit () {
   command -v dnf >/dev/null 2>&1 && sudo dnf -y groupinstall git-all || \
   command -v yum >/dev/null 2>&1 && sudo yum -y groupinstall git-all;
 }
-header () { 
+header () {
   printf "\033c      \e[1m\e[4m$fullname\e[0m\n\n\e[2m";
   [ $m_start -eq 0 ] && printf "\e[0m\e[1m"; [ $m_start -lt 2 ] && printf "  Start \e[0m\e[34m->\e[0m\e[2m ";
   [ $m_backup -eq 0 ] && printf "\e[0m\e[1m"; [ $m_backup -lt 2 ] && printf "Backup \e[0m\e[34m->\e[0m\e[2m ";
@@ -192,14 +192,14 @@ while :; do
     printf "    accidentally mining blocks for the devious Stackoverflo :P\n\n";
 
     readf  "  Type \"q\" to Quit, or press \"Enter\" to Continue: ";
-      
+
       if [ "$input" = "q" ]; then err 0 "\nExiting...\n\n";
     elif [ "$input" = ""  ]; then [ $m_backup -eq 1 ] && m_backup=0 || m_version=0; m_start=1;
     else continue; fi;
   fi;
   #
   # Backup Files - maddr.dat, solved.dat, coreip.lst
-  if [ $m_backup -eq 0 ]; then 
+  if [ $m_backup -eq 0 ]; then
     while :; do
       # File Checks
       [ ! -r ../bin/maddr.dat ] && b_ma="-";
@@ -227,14 +227,14 @@ while :; do
       printf "    b\e[1m\e[34m.\e[0m Back\n\n";
 
       readf "  Type a selection or press \"Enter\" to confirm backups: ";
-      
+
       if [[ $input =~ "1" ]] && [ "$b_ma" != "-" ]; then [ "$b_ma" = "X" ] && b_ma=" " || b_ma="X"; fi;
       if [[ $input =~ "2" ]] && [ "$b_so" != "-" ]; then [ "$b_so" = "X" ] && b_so=" " || b_so="X"; fi;
       if [[ $input =~ "3" ]] && [ "$b_co" != "-" ]; then [ "$b_co" = "X" ] && b_co=" " || b_co="X"; fi;
       if [[ $input =~ "4" ]] && [ "$b_wa" != "-" ]; then [ "$b_wa" = "X" ] && b_wa=" " || b_wa="X"; fi;
       if [[ $input =~ "b" ]]; then m_backup=1; m_start=0; break; fi;
       if [ "$input" = "" ]; then b_ready=1; fi;
-      if [ $b_ready -gt 0 ]; then 
+      if [ $b_ready -gt 0 ]; then
         count=0;
         header;
         printf "  Backup selection:\n";
@@ -300,7 +300,7 @@ while :; do
   # Version Selection - Choose a damn version, probably the latest...
   if [ $m_version -eq 0 ]; then
     # If possible, read in the previous version installed
-    [ -r installer/prev_v ] && prev_v=$(< installer/prev_v); 
+    [ -r installer/prev_v ] && prev_v=$(< installer/prev_v);
     # Download any new versions automagically
     cd installer/archive;
     if [ $download -gt 0 ]; then header; printf "Downloading latest mochimo package from github\\n";
@@ -324,9 +324,9 @@ while :; do
     printf "    d\e[1m\e[34m.\e[0m Download any available updates from GitHub\n";
     printf "    b\e[1m\e[34m.\e[0m Back to Main Menu\n\n";
     readf "  Type a selection or press \"Enter\" to install recommended [$default]: ";
-    
+
     i=${input:-$default};
-      if [ "$i" = "b" ]; then [ $m_uninstall -eq 1 ] && m_uninstall=0 || m_start=0; 
+      if [ "$i" = "b" ]; then [ $m_uninstall -eq 1 ] && m_uninstall=0 || m_start=0;
     elif [ "$i" = "d" ]; then download=1; continue;
     elif ! [[ "$i" =~ ^[0-9]+$ ]] || [ $i -lt 1 ] || [ $i -gt $maxi ]; then continue;
     else m_options=0; fi;
@@ -361,7 +361,7 @@ while :; do
     m_install=1; m_finish=0;
     # Extract package
     printf "Extracting ${files[$((--i))]}... ";
-    if tar -zxf "installer/archive/${files[$i]}" -C ../..; then 
+    if tar -zxf "installer/archive/${files[$i]}" -C ../..; then
       success; else finish="$finish\n  Failed to extract ${files[$i]}"; fi;
     # Compilation
     cd ../src;

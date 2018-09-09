@@ -184,7 +184,7 @@ while :; do
       # Check ONE-TIME tmux attach flag exists, and acknownledge (via removal)
       [ -f "$login" ] || break;
       rm -f "$login"  || err "Could not delete $login";
-      
+
       # Loop to --attach
       flag="--attach";
       continue;
