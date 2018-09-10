@@ -28,7 +28,8 @@ Simply download the toolkit and copy the desired scripts into your Mochimo Node'
 
 ```bash
 git clone https://github.com/chrisdigity/mochitoolkit.git ~/mochitoolkit
-cp -r ~/mochitoolkit/scripts ~/mochi/
+mkdir ~/mochi
+cp -r ~/mochitoolkit/scripts ~/mochi
 ```
 
 ## Bugs
