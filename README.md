@@ -1,45 +1,27 @@
 # Mochi Toolkit
 
-Helpful tools for Mochimo Nodes... hopefully...
+Handy tools for Mochimo Nodes... hopefully...
 
-Eventually I will have a bunch of scripts here that all do weird and wonderful(?) things.
+### Mochimo Autostart | [mauto.sh](mauto.sh)
 
-## Contents
+Autostart a Mochimo Node on system startup. Rather handy...
 
-Mochi Installer - [README](readme/minst.md)
+### Mochiaddress | [maddr.sh](maddr.sh)
 
-> Easy/Useful Mochimo Node Installer
+Displays the details of a Mochimo address file (maddr.dat), and checks you aren't mining with the default mining address. Mildly handy...
 
-Mochi Autostart - [README](readme/mauto.md)
+## Installation
 
-> Autostart a Mochimo Node on system startup
+Simply download the toolkit using git clone
 
-Mochi Balance - [README](readme/mbal.md)
-
-> Displays the balance of a Mochimo Address
-
-Mochi Address - [README](readme/maddr.md)
-
-> Displays the hex address of a Mochimo address file (maddr.dat)
-
-## Install instructions
-
-Simply download the toolkit and copy the desired scripts into your Mochimo Node's `mochi/scripts` directory
-
-```bash
-git clone https://github.com/chrisdigity/mochitoolkit.git ~/mochitoolkit
-cp -r ~/mochitoolkit/scripts ~/mochi/
+```shell
+git clone https://github.com/chrisdigity/mochitoolkit.git
 ```
 
 ## Bugs
 
-Hit me up with your issues in the Mochimo [Discord server](https://discord.gg/G8YVFMt).
+Submit an issue here or hit me up in the [Mochimo Discord server](https://discord.gg/G8YVFMt).
 
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
-
-- [Mochimo](https://mochimo.org/)
-- [Mochimo Discord](https://discord.gg/G8YVFMt)
