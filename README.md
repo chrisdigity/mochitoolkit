@@ -2,13 +2,15 @@
 
 Handy tools for Mochimo Nodes... hopefully...
 
-### Mochimo Autostart | [mauto.sh](mauto.sh)
+### Mochimo Autostart Script | [mauto.sh](mauto.sh)
 
-Autostart a Mochimo Node on system startup. Rather handy...
+Autostart a Mochimo Node on system startup.  
+Rather handy...
 
-### Mochiaddress | [maddr.sh](maddr.sh)
+### Mochimo Address Checker | [maddr.sh](maddr.sh)
 
-Displays the details of a Mochimo address file (maddr.dat), and checks you aren't mining with the default mining address. Mildly handy...
+Displays the details of a Mochimo address file (maddr.dat), and checks you aren't mining with the default mining address.  
+Mildly handy...
 
 ## Installation
 
