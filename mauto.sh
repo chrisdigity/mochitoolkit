@@ -16,7 +16,7 @@
 #
 # #####################################################################
 #
-#   Mochimo Autostart - v1.3.0 by Chrisdigity
+#   Mochimo Autostart - v1.3.1 by Chrisdigity
 #
 # Prerequisites: mochimo node (https://github.com/mochimodev/mochimo)
 #                tmux (sudo apt install tmux)
@@ -30,40 +30,52 @@
 #    Give it a name (and comment if you wish)
 #    Command: gnome-terminal -x sh -c '~/mochitoolkit/mauto.sh;exec bash'
 #
-#  - For Server Environment;
-#    Open '.bashrc' with your favourite editor
-#      `nano ~/.bashrc`
-#    Add script to the bottom
-#      `~/mochitoolkit/mauto.sh`
+#  - For Server Environment (Ubuntu);
+#    Add a '#' to the start of line 71: 'tmux attach -t mochimo'
+#    Open '/etc/rc.local' with your favourite editor
+#      `nano /etc/rc.local`
+#    Add the next line before 'exit 0'
+#      `sh -c ~/mochitoolkit/mauto.sh $(whoami)`
+#    *Then to access the node after login type
+#      `tmux attach -t mochimo`
 #
 ############
 # Variables
 dmochi="$HOME/mochimo/bin"   # mochimo bin directory (MUST BE FULL PATH)
 mochi="./gomochi d"          # start command
-notimeout=0                  # network error
+network=0                    # network connectivity
 
 ##########
 # Execute
 if ! $(tmux has-session -t mochimo)             # Check mochimo node
 then
   printf "Network connectivity check... "
-  for i in {1..20}; do sleep 3
-    if ping -c1 google.com >/dev/null 2>&1; then
-      printf "OK\n"
-      notimeout=1
-      break
-    fi
-  done
-  if [ $notimeout -eq 1 ]
+  if [ $network -eq 0 ]
+  then
+    for i in {1..20}
+    do
+      sleep 3
+      if ping -c1 google.com >/dev/null 2>&1
+      then
+        printf "OK\n"
+        network=1
+        break
+      fi
+    done
+  else
+    printf "SKIP\n"
+  fi
+  if [ $network -eq 1 ]
   then
     tmux new -s mochimo -c $dmochi -d "$mochi"  # Start mochimo node
     tmux attach -t mochimo                      # Attach to session
   else
     printf "Timeout!\n"
+    exit 1
   fi
 else
   echo "A Mochimo session already exists"
   echo "Try: tmux attach -t mochimo"
 fi
 
-exit 0;
+exit 0
