@@ -16,7 +16,7 @@
 #
 # #####################################################################
 #
-#   Mochimo Autostart - v1.3.1 by Chrisdigity
+#   Mochimo Autostart - v1.3.2 by Chrisdigity
 #
 # Prerequisites: mochimo node (https://github.com/mochimodev/mochimo)
 #                tmux (sudo apt install tmux)
@@ -31,12 +31,14 @@
 #    Command: gnome-terminal -x sh -c '~/mochitoolkit/mauto.sh;exec bash'
 #
 #  - For Server Environment (Ubuntu);
-#    Add a '#' to the start of line 71: 'tmux attach -t mochimo'
+#    Add a '#' to the start of line 73: 'tmux attach -t mochimo'
 #    Open '/etc/rc.local' with your favourite editor
 #      `nano /etc/rc.local`
-#    Add the next line before 'exit 0'
-#      `sh -c ~/mochitoolkit/mauto.sh $(whoami)`
-#    *Then to access the node after login type
+#    Add the next line before 'exit 0' in '/etc/rc.local', replacing
+#    <username> with the user you wish to use to start the mochimo node
+#      `sh -c ~/mochitoolkit/mauto.sh <username>`
+#
+#    *To access the node after login type
 #      `tmux attach -t mochimo`
 #
 ############
