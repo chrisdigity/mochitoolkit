@@ -34,6 +34,11 @@ Preferably Handy...
 Displays the details of a Mochimo address file (maddr.dat), and checks you aren't mining with the default mining address.  
 Gently Handy...
 
+### Mochimo CLI Wallet Compiler Script for Windows | [makewal.bat](makewal.bat)
+
+Compiles the Mochimo CLI wallet for use on a Windows machine with the help of the Embarcadero Belin Compiler and a little bit of batch script wizardry. Check script for installation instructions.  
+Abnormally Handy...
+
 ### Mochimo Mining Dependency Installers
 
 Automatic installation of Mochimo GPU mining dependencies depending on system.  
