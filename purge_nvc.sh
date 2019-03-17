@@ -16,7 +16,7 @@
 #
 # #####################################################################
 #
-#   Purge Nvidia Drivers and Cuda Installs - v1.0.0 by Chrisdigity
+#   Purge Nvidia Drivers and Cuda Installs - v1.0.1 by Chrisdigity
 #
 # Prerequisites: Ubuntu 16.04/18.04
 #
@@ -30,21 +30,17 @@ echo "   _ __  _   _ _ __ __ _  ___     _ ____   _____ "
 echo "  | '_ \| | | | '__/ _\` |/ _ \   | '_ \ \ / / __|"
 echo "  | |_) | |_| | | | (_| |  __/   | | | \ V / (__ "
 echo "  | .__/ \__,_|_|  \__, |\___|___|_| |_|\_/ \___|"
-echo "  |_|              |___/    |_____|    -v1.0.0 by Chrisdigity"
+echo "  |_|              |___/    |_____|    -v1.0.1 by Chrisdigity"
 echo
 echo "Remove all Cuda Installations and Nvidia Drivers on the system"
 echo
 echo "You may be asked for your password to remove packages..."
 sleep 5
 
-# obtain Nvidia
-nvidia=$(dpkg --get-selections | grep nvidia | awk '{print $1}' | tr '\n' ' ')
-
-# obtain CUDA
-cuda=$(dpkg --get-selections | grep cuda | awk '{print $1}' | tr '\n' ' ')
-
 # remove
-sudo apt remove -y --purge $nvidia $cuda
+sudo apt remove -y --purge nvidia*
+sudo apt remove -y --purge libcuda*
+sudo apt remove -y --purge cuda*
 
 # remove remnants
 sudo rm -rf /usr/local/cuda*

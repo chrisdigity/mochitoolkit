@@ -16,7 +16,7 @@
 #
 # #####################################################################
 #
-#   Install Mochimo GPU Mining dependencies - v1.0.0 by Chrisdigity
+#   Install Mochimo GPU Mining dependencies - v1.0.1 by Chrisdigity
 #
 # Prerequisites: Ubuntu 16.04 LTS
 #
@@ -30,7 +30,7 @@ echo "  (_)_ __  ___| |_ __ _| | |    _ ____   _____ _   _/ |/ /_  "
 echo "  | | '_ \/ __| __/ _\` | | |   | '_ \ \ / / __| | | | | '_ \ "
 echo "  | | | | \__ \ || (_| | | |   | | | \ V / (__| |_| | | (_) |"
 echo "  |_|_| |_|___/\__\__,_|_|_|___|_| |_|\_/ \___|\__,_|_|\___/ "
-echo "                          |_____|    -v1.0.0 by Chrisdigity"
+echo "                          |_____|    -v1.0.1 by Chrisdigity"
 echo
 echo "Install Mochimo GPU mining dependencies on Ubuntu 16.04 LTS"
 echo "    - Cuda 9.2 and appropriate Nvidia Driver"
@@ -38,9 +38,16 @@ echo
 echo "You may be asked for your password to install packages..."
 sleep 5
 
-# Download/Overwrite Cuda 9.2 debian package
-rm ~/cuda-9-2.deb
-wget -O ~/cuda-9-2.deb https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda-repo-ubuntu1604-9-2-local_9.2.148-1_amd64
+# Download Cuda 9.2 debian package
+if test ! -e ~/cuda-9-2.deb
+then
+   wget -O ~/cuda-9-2.deb https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda-repo-ubuntu1604-9-2-local_9.2.148-1_amd64
+else
+   echo
+   echo "~/cuda.9.2.deb already exists... using existing file."
+   echo
+   sleep 1
+fi
 
 # Install debian package
 sudo dpkg -i ~/cuda-9-2.deb
@@ -50,7 +57,7 @@ sudo apt-key add /var/cuda-repo-9-2*/7fa2af80.pub
 
 # Install
 sudo apt update
-sudo apt install -y build-essential linux-headers-$(uname -r) cuda
+sudo apt install -y build-essential cuda
 
 # Alert 
 echo
