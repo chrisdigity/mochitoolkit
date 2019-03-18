@@ -41,12 +41,12 @@ Abnormally Handy...
 
 ### Mochimo Mining Dependency Installers
 
-Automatic installation of Mochimo GPU mining dependencies depending on system.  
+Automatic installation of Mochimo GPU mining dependencies for some popular systems.  
 Dazzlingly Handy...
 
 **Nvidia GPUs**
-* Ubuntu 16.04/Cuda-9.2 (up to GTX 10 Series) | [install_nvcu16.sh](install_nvcu16.sh)
-* Ubuntu 18.04/Cuda-10.0 (up to RTX 20 Series) | [install_nvcu18.sh](install_nvcu18.sh)
+* Ubuntu 16.04/Cuda-10.1 (up to GTX 10 Series) | [install_nvcu16.sh](install_nvcu16.sh)
+* Ubuntu 18.04/Cuda-10.1 (up to RTX 20 Series) | [install_nvcu18.sh](install_nvcu18.sh)
 
 **AMD GPUs**
 * Not yet...

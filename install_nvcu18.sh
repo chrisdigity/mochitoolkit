@@ -16,9 +16,9 @@
 #
 # #####################################################################
 #
-#   Install Mochimo GPU Mining dependencies - v1.0.1 by Chrisdigity
+#   Install Mochimo GPU Mining dependencies - v1.1.0 by Chrisdigity
 #
-# Prerequisites: Ubuntu 16.04 LTS
+# Prerequisites: Ubuntu 18.04 LTS
 #
 # Simply run the script as an elevated user
 #     `sudo ~/mochitoolkit/install_nvcu16.sh`
@@ -30,34 +30,34 @@ echo "  (_)_ __  ___| |_ __ _| | |    _ ____   _____ _   _/ |( _ ) "
 echo "  | | '_ \/ __| __/ _\` | | |   | '_ \ \ / / __| | | | |/ _ \ "
 echo "  | | | | \__ \ || (_| | | |   | | | \ V / (__| |_| | | (_) |"
 echo "  |_|_| |_|___/\__\__,_|_|_|___|_| |_|\_/ \___|\__,_|_|\___/ "
-echo "                          |_____|    -v1.0.1 by Chrisdigity"
+echo "                          |_____|    -v1.1.0 by Chrisdigity"
 echo
 echo "Install Mochimo GPU mining dependencies on Ubuntu 18.04 LTS"
-echo "    - Cuda 10.0 and appropriate Nvidia Driver"
+echo "    - Cuda 10.1 and appropriate Nvidia Driver"
 echo
 echo "You may be asked for your password to install packages..."
 sleep 5
 
-# Download Cuda 10.0 debian package
-if test ! -e ~/cuda-10.deb
+# Download Cuda 10.1 debian package
+if test ! -e ~/cuda-10-1.deb
 then
-   wget -O ~/cuda-10.deb https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64
+   wget -O ~/cuda-10-1.deb https://developer.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda-repo-ubuntu1804-10-1-local-10.1.105-418.39_1.0-1_amd64.deb
 else
    echo
-   echo "~/cuda.10.deb already exists... using existing file."
+   echo "~/cuda-10-1.deb already exists... using existing file."
    echo
    sleep 1
 fi
 
 # Install debian package
-sudo dpkg -i ~/cuda-10.deb
+sudo dpkg -i ~/cuda-10-1.deb
 
 # Add key
-sudo apt-key add /var/cuda-repo-10*/7fa2af80.pub
+sudo apt-key add /var/cuda-repo-10-1*/7fa2af80.pub
 
 # Install
 sudo apt update
-sudo apt install -y build-essential gcc-6 g++-6 cuda
+sudo apt install -y build-essential gcc-6 g++-6 git cuda
 
 # Set Symlinks
 sudo ln -s /usr/bin/gcc-6 /usr/local/cuda/bin/gcc
