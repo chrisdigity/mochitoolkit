@@ -21,7 +21,7 @@
 # Prerequisites: Ubuntu 18.04 LTS
 #
 # Simply run the script as an elevated user
-#     `sudo ~/mochitoolkit/install_nvcu16.sh`
+#     `sudo ~/mochitoolkit/install_nvcu18.sh`
 #
 #########
 # Header
